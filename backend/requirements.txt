@@ -1,0 +1,43 @@
+# FastAPI y servidor
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+
+# Base de datos
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Autenticación y seguridad
+python-jose[cryptography]==3.3.0
+passlib==1.7.4
+bcrypt==4.0.1
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# OCR y procesamiento de imágenes
+google-cloud-vision==3.7.0
+Pillow==10.2.0
+opencv-python-headless==4.9.0.80
+
+# Almacenamiento en la nube
+boto3==1.34.34  # Para S3/R2
+
+# Tareas asíncronas
+celery==5.3.6
+redis==5.0.1
+
+# Exportación de reportes
+reportlab==4.0.9
+openpyxl==3.1.2
+
+# Reportes y exportación
+reportlab==4.0.9
+pandas==2.2.0
+openpyxl==3.1.2
+
+# Utilidades
+httpx==0.26.0
+python-dateutil==2.8.2

@@ -1,0 +1,32 @@
+# Render Blueprint - Despliegue automático
+services:
+  # Base de datos PostgreSQL
+  - type: pserv
+    name: expense-db
+    plan: free
+    region: oregon
+    databaseName: expense_control
+    databaseUser: expense_user
+
+  # Backend FastAPI
+  - type: web
+    name: expense-backend
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: expense-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_ORIGINS
+        value: "*"
+      - key: ENVIRONMENT
+        value: production
+    disk:
+      name: receipts
+      mountPath: /app/receipts
+      sizeGB: 1
