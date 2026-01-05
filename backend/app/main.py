@@ -39,6 +39,56 @@ async def health_check():
         "service": "expense-control-api"
     }
 
+# Endpoint temporal para crear categorías por defecto (ELIMINAR después de usar)
+@app.post("/init-categories")
+async def init_categories():
+    """
+    TEMPORAL: Crea categorías por defecto
+    ⚠️ ELIMINAR este endpoint después de usarlo
+    """
+    try:
+        from app.core.database import SessionLocal
+        from app.models.category import Category
+        
+        db = SessionLocal()
+        
+        # Verificar si ya existen categorías
+        existing = db.query(Category).count()
+        if existing > 0:
+            db.close()
+            return {"status": "info", "message": f"Ya existen {existing} categorías"}
+        
+        # Categorías por defecto
+        default_categories = [
+            {"name": "Transporte", "description": "Taxis, buses, gasolina, estacionamiento"},
+            {"name": "Alojamiento", "description": "Hoteles, hospedaje"},
+            {"name": "Alimentación", "description": "Restaurantes, comidas"},
+            {"name": "Entretenimiento", "description": "Actividades recreativas"},
+            {"name": "Suministros", "description": "Material de oficina, equipos"},
+            {"name": "Comunicaciones", "description": "Teléfono, internet"},
+            {"name": "Otros", "description": "Gastos varios"}
+        ]
+        
+        categories_created = []
+        for cat_data in default_categories:
+            category = Category(**cat_data)
+            db.add(category)
+            categories_created.append(cat_data["name"])
+        
+        db.commit()
+        db.close()
+        
+        return {
+            "status": "success",
+            "message": "Categorías creadas correctamente",
+            "categories": categories_created
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
 # Include Routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(password_reset.router, prefix="/api/password", tags=["Password Reset"])

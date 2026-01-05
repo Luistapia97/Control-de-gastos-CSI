@@ -1,64 +1,57 @@
 """
-Storage Service - Upload files to S3/R2
+Storage Service - Upload files locally (S3/R2 disabled for now)
 """
-import boto3
-from botocore.exceptions import ClientError
-from app.core.config import settings
+import os
 from typing import Optional
 import uuid
 from pathlib import Path
 
 class StorageService:
     def __init__(self):
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=settings.S3_ACCESS_KEY,
-            aws_secret_access_key=settings.S3_SECRET_KEY,
-            endpoint_url=settings.S3_ENDPOINT if settings.S3_ENDPOINT else None,
-            region_name=settings.S3_REGION
-        )
-        self.bucket = settings.S3_BUCKET
+        # Usar almacenamiento local en lugar de S3
+        self.receipts_dir = os.getenv("RECEIPTS_DIR", "/app/receipts")
+        os.makedirs(self.receipts_dir, exist_ok=True)
     
     def upload_receipt(self, file_bytes: bytes, filename: str, user_id: int) -> Optional[str]:
         """
-        Upload receipt image to S3/R2
+        Upload receipt image to local storage
         
         Returns:
-            URL of uploaded file or None if failed
+            Relative URL of uploaded file or None if failed
         """
         try:
             # Generate unique filename
             extension = Path(filename).suffix
-            unique_filename = f"receipts/{user_id}/{uuid.uuid4()}{extension}"
+            unique_filename = f"{user_id}_{uuid.uuid4()}{extension}"
             
-            # Upload
-            self.s3_client.put_object(
-                Bucket=self.bucket,
-                Key=unique_filename,
-                Body=file_bytes,
-                ContentType=self._get_content_type(extension)
-            )
+            # Create user directory
+            user_dir = os.path.join(self.receipts_dir, str(user_id))
+            os.makedirs(user_dir, exist_ok=True)
             
-            # Generate URL
-            url = f"https://{self.bucket}.s3.{settings.S3_REGION}.amazonaws.com/{unique_filename}"
-            if settings.S3_ENDPOINT:
-                url = f"{settings.S3_ENDPOINT}/{self.bucket}/{unique_filename}"
+            # Save file
+            file_path = os.path.join(user_dir, unique_filename)
+            with open(file_path, 'wb') as f:
+                f.write(file_bytes)
             
-            return url
+            # Return relative URL
+            return f"receipts/{user_id}/{unique_filename}"
         
-        except ClientError as e:
-            print(f"Error uploading to S3: {e}")
+        except Exception as e:
+            print(f"Error uploading file: {e}")
             return None
     
-    def delete_receipt(self, url: str) -> bool:
-        """Delete receipt from S3/R2"""
+    def delete_receipt(self, file_url: str) -> bool:
+        """Delete receipt from local storage"""
         try:
-            # Extract key from URL
-            key = url.split(f"{self.bucket}/")[-1]
-            self.s3_client.delete_object(Bucket=self.bucket, Key=key)
-            return True
-        except ClientError as e:
-            print(f"Error deleting from S3: {e}")
+            # Extract filename from URL
+            if file_url.startswith('receipts/'):
+                file_path = os.path.join(self.receipts_dir, file_url.replace('receipts/', ''))
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                return True
+            return False
+        except Exception as e:
+            print(f"Error deleting file: {e}")
             return False
     
     def _get_content_type(self, extension: str) -> str:
