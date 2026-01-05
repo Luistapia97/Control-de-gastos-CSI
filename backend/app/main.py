@@ -58,15 +58,15 @@ async def init_categories():
             db.close()
             return {"status": "info", "message": f"Ya existen {existing} categorías"}
         
-        # Categorías por defecto
+        # Categorías por defecto con iconos y colores
         default_categories = [
-            {"name": "Transporte", "description": "Taxis, buses, gasolina, estacionamiento"},
-            {"name": "Alojamiento", "description": "Hoteles, hospedaje"},
-            {"name": "Alimentación", "description": "Restaurantes, comidas"},
-            {"name": "Entretenimiento", "description": "Actividades recreativas"},
-            {"name": "Suministros", "description": "Material de oficina, equipos"},
-            {"name": "Comunicaciones", "description": "Teléfono, internet"},
-            {"name": "Otros", "description": "Gastos varios"}
+            {"name": "Transporte", "description": "Taxis, buses, gasolina, estacionamiento", "icon": "🚗", "color": "#2196F3"},
+            {"name": "Alojamiento", "description": "Hoteles, hospedaje", "icon": "🏨", "color": "#9C27B0"},
+            {"name": "Alimentación", "description": "Restaurantes, comidas", "icon": "🍽️", "color": "#FF9800"},
+            {"name": "Entretenimiento", "description": "Actividades recreativas", "icon": "🎭", "color": "#E91E63"},
+            {"name": "Suministros", "description": "Material de oficina, equipos", "icon": "📦", "color": "#607D8B"},
+            {"name": "Comunicaciones", "description": "Teléfono, internet", "icon": "📱", "color": "#00BCD4"},
+            {"name": "Otros", "description": "Gastos varios", "icon": "💼", "color": "#795548"}
         ]
         
         categories_created = []
