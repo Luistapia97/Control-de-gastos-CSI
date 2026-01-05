@@ -39,6 +39,40 @@ async def health_check():
         "service": "expense-control-api"
     }
 
+# Endpoint temporal para inicializar la base de datos (ELIMINAR después de usar)
+@app.post("/init-database")
+async def init_database():
+    """
+    TEMPORAL: Crea todas las tablas en la base de datos
+    ⚠️ ELIMINAR este endpoint después de usarlo
+    """
+    try:
+        from app.core.database import engine, Base
+        from app.models.user import User
+        from app.models.expense import Expense
+        from app.models.category import Category
+        from app.models.trip import Trip
+        from app.models.report import Report
+        from app.models.refund import Refund
+        from app.models.notification import Notification
+        
+        # Crear todas las tablas
+        Base.metadata.create_all(bind=engine)
+        
+        return {
+            "status": "success",
+            "message": "Base de datos inicializada correctamente",
+            "tables_created": [
+                "users", "expenses", "categories", "trips", 
+                "reports", "refunds", "notifications"
+            ]
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
 # Include Routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(password_reset.router, prefix="/api/password", tags=["Password Reset"])
