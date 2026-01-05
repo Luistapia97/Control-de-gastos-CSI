@@ -73,6 +73,44 @@ async def init_database():
             "message": str(e)
         }
 
+# Endpoint temporal para hacer admin al primer usuario (ELIMINAR después de usar)
+@app.post("/make-admin/{user_id}")
+async def make_admin(user_id: int):
+    """
+    TEMPORAL: Cambia el rol de un usuario a admin
+    ⚠️ ELIMINAR este endpoint después de usarlo
+    """
+    try:
+        from app.core.database import SessionLocal
+        from app.models.user import User
+        
+        db = SessionLocal()
+        user = db.query(User).filter(User.id == user_id).first()
+        
+        if not user:
+            return {"status": "error", "message": f"Usuario con ID {user_id} no encontrado"}
+        
+        user.role = "admin"
+        db.commit()
+        db.refresh(user)
+        db.close()
+        
+        return {
+            "status": "success",
+            "message": f"Usuario {user.email} ahora es admin",
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "full_name": user.full_name,
+                "role": user.role
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
+
 # Include Routers
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(password_reset.router, prefix="/api/password", tags=["Password Reset"])
