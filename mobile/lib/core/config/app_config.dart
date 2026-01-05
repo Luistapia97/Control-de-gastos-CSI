@@ -1,7 +1,7 @@
 /// App Configuration
 class AppConfig {
   static const String appName = 'Expense Control';
-  static const String apiBaseUrl = 'http://localhost:8000/api';
+  static const String apiBaseUrl = 'https://control-de-gastos-csi.onrender.com/api';
   
   // API Endpoints
   static const String loginEndpoint = '/auth/login';
