@@ -52,11 +52,9 @@ async def init_categories():
         
         db = SessionLocal()
         
-        # Verificar si ya existen categorías
-        existing = db.query(Category).count()
-        if existing > 0:
-            db.close()
-            return {"status": "info", "message": f"Ya existen {existing} categorías"}
+        # Eliminar categorías existentes sin icon/color
+        db.query(Category).delete()
+        db.commit()
         
         # Categorías por defecto con iconos y colores
         default_categories = [
