@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class StatisticsService {
-  static const String baseUrl = 'http://192.168.100.53:8000/api/statistics';
+  static const String baseUrl = 'https://control-de-gastos-csi.onrender.com/api/statistics';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

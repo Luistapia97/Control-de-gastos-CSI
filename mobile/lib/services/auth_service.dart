@@ -4,10 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://192.168.100.53:8000/api'; // Emulador Android
-  // 10.0.2.2 es la IP especial del emulador Android que apunta al localhost
-  // Para iOS emulator usar: http://localhost:8000/api
-  // Para dispositivo físico: usar la IP de tu red local (ej: http://192.168.x.x:8000/api)
+  static const String baseUrl = 'https://control-de-gastos-csi.onrender.com/api';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

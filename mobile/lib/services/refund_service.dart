@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/refund.dart';
 
 class RefundService {
-  static const String baseUrl = 'http://192.168.100.53:8000/api';
+  static const String baseUrl = 'https://control-de-gastos-csi.onrender.com/api';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

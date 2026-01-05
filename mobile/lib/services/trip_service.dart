@@ -5,7 +5,7 @@ import '../models/trip.dart';
 import '../models/report.dart';
 
 class TripService {
-  static const String baseUrl = 'http://192.168.100.53:8000/api'; // Emulador Android -> localhost
+  static const String baseUrl = 'https://control-de-gastos-csi.onrender.com/api';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

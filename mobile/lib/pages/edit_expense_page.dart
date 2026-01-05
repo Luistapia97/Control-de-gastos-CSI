@@ -46,7 +46,7 @@ class _EditExpensePageState extends State<EditExpensePage> {
     if (url == null || url.isEmpty) return '';
     if (url.startsWith('http')) return url;
     // Construir URL completa desde ruta relativa
-    return 'http://192.168.100.53:8000/$url';
+    return 'https://control-de-gastos-csi.onrender.com/$url';
   }
 
   void _showFullImage(String imageUrl) {

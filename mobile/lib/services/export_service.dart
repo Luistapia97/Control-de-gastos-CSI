@@ -204,7 +204,7 @@ class ExportService {
   }
 
   // Métodos para descargar desde el backend
-  final String baseUrl = 'http://192.168.100.53:8000/api';
+  final String baseUrl = 'https://control-de-gastos-csi.onrender.com/api';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();

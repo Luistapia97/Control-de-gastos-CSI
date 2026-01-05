@@ -21,7 +21,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.100.53:8000/api/password/request-reset'),
+        Uri.parse('https://control-de-gastos-csi.onrender.com/api/password/request-reset'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'email': _emailController.text.trim()}),
       );
