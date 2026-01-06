@@ -414,7 +414,6 @@ class _StatisticsPageState extends State<StatisticsPage> {
                         gridData: FlGridData(
                           show: true,
                           drawVerticalLine: false,
-                          horizontalInterval: 1000,
                         ),
                         titlesData: FlTitlesData(
                           leftTitles: AxisTitles(

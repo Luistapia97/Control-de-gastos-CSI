@@ -19,8 +19,8 @@ from app.services import ocr_service, storage_service
 
 router = APIRouter()
 
-# Directorio para almacenar recibos (usar variable de entorno o default)
-RECEIPTS_DIR = Path(os.getenv("RECEIPTS_DIR", "/app/receipts"))
+# Directorio para almacenar recibos (usar disco persistente en Render)
+RECEIPTS_DIR = Path(os.getenv("RECEIPTS_DIR", "/data/receipts"))
 RECEIPTS_DIR.mkdir(parents=True, exist_ok=True)
 
 import logging

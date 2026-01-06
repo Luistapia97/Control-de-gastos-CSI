@@ -88,6 +88,13 @@ class _EditExpensePageState extends State<EditExpensePage> {
     _selectedCategoryId = widget.expense.categoryId;
     _selectedDate = widget.expense.expenseDate;
     _existingReceiptUrl = widget.expense.receiptUrl;
+    
+    // Debug: verificar si hay URL de recibo
+    if (_existingReceiptUrl != null && _existingReceiptUrl!.isNotEmpty) {
+      print('✅ Recibo existente encontrado: $_existingReceiptUrl');
+    } else {
+      print('⚠️ No hay recibo existente');
+    }
   }
 
   Future<void> _loadCategories() async {

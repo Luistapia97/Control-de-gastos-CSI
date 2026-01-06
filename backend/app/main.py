@@ -26,7 +26,8 @@ app.add_middleware(
 )
 
 # Servir archivos estáticos de recibos
-RECEIPTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "receipts"))
+# Usar disco persistente en Render (/data/receipts) o carpeta local en desarrollo
+RECEIPTS_DIR = os.getenv("RECEIPTS_DIR", "/data/receipts")
 os.makedirs(RECEIPTS_DIR, exist_ok=True)
 app.mount("/receipts", StaticFiles(directory=RECEIPTS_DIR), name="receipts")
 
