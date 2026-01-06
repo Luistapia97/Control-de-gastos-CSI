@@ -120,21 +120,39 @@ async def create_expense(
                     detail=f"Extensión de archivo no permitida. Use: {', '.join(allowed_extensions)}"
                 )
             
-            # Guardar archivo
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{current_user.id}_{timestamp}.{file_extension}"
-            file_path = RECEIPTS_DIR / filename
+            # Leer archivo en bytes
+            file_bytes = await receipt.read()
             
-            with file_path.open("wb") as buffer:
-                shutil.copyfileobj(receipt.file, buffer)
+            # Subir usando storage_service (Supabase o local)
+            receipt_url = storage_service.upload_receipt(
+                file_bytes=file_bytes,
+                filename=receipt.filename,
+                user_id=current_user.id
+            )
             
-            receipt_url = f"receipts/{filename}"
+            if not receipt_url:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Error al subir el archivo"
+                )
+            
             receipt_original_name = receipt.filename
             
-            # Procesar OCR (opcional)
+            # Procesar OCR (opcional) - guardar temporalmente para OCR
             try:
-                file_path_str = str(file_path)
-                ocr_result = ocr_service.extract_receipt_data_from_file(file_path_str)
+                # Crear archivo temporal para OCR
+                temp_path = RECEIPTS_DIR / f"temp_{current_user.id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.{file_extension}"
+                with temp_path.open("wb") as f:
+                    f.write(file_bytes)
+                
+                ocr_result = ocr_service.extract_receipt_data_from_file(str(temp_path))
+                if ocr_result:
+                    ocr_data = json.dumps(ocr_result)
+                    ocr_confidence = ocr_result.get('confidence', 0)
+                
+                # Eliminar archivo temporal
+                if temp_path.exists():
+                    temp_path.unlink()
                 if ocr_result:
                     ocr_data = json.dumps(ocr_result)
                     ocr_confidence = ocr_result.get('confidence', 0)
