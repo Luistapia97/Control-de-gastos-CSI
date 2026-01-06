@@ -56,7 +56,9 @@ class StorageService:
                 public_url = self.supabase.storage.from_(self.bucket_name).get_public_url(unique_filename)
                 logger.info(f"✅ Uploaded to Supabase: {public_url}")
                 return public_url
-            elselogger.warning(f"⚠️  Uploading to LOCAL storage: {unique_filename}")
+            else:
+                # Upload to local storage
+                logger.warning(f"⚠️  Uploading to LOCAL storage: {unique_filename}")
                 user_dir = os.path.join(self.receipts_dir, str(user_id))
                 os.makedirs(user_dir, exist_ok=True)
                 
@@ -68,8 +70,6 @@ class StorageService:
                 relative_url = f"receipts/{user_id}/{unique_filename.split('/')[-1]}"
                 logger.info(f"💾 Saved locally: {relative_url}")
                 return relative_url
-                # Return relative URL
-                return f"receipts/{user_id}/{unique_filename.split('/')[-1]}"
         
         except Exception as e:
             print(f"❌ Error uploading file: {e}")
