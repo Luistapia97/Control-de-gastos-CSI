@@ -24,6 +24,7 @@ opencv-python-headless==4.9.0.80
 
 # Almacenamiento en la nube
 boto3==1.34.34  # Para S3/R2
+supabase==2.3.4  # Para Supabase Storage
 
 # Tareas asíncronas
 celery==5.3.6

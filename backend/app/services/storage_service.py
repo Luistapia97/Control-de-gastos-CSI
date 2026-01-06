@@ -1,57 +1,87 @@
 """
-Storage Service - Upload files locally (S3/R2 disabled for now)
+Storage Service - Upload files to Supabase Storage
 """
 import os
 from typing import Optional
 import uuid
 from pathlib import Path
+from supabase import create_client, Client
 
 class StorageService:
     def __init__(self):
-        # Usar almacenamiento local en lugar de S3
-        self.receipts_dir = os.getenv("RECEIPTS_DIR", "/app/receipts")
-        os.makedirs(self.receipts_dir, exist_ok=True)
+        # Verificar si hay configuración de Supabase
+        supabase_url = os.getenv("SUPABASE_URL")
+        supabase_key = os.getenv("SUPABASE_KEY")
+        
+        if supabase_url and supabase_key:
+            self.use_supabase = True
+            self.supabase: Client = create_client(supabase_url, supabase_key)
+            self.bucket_name = os.getenv("SUPABASE_BUCKET", "receipts")
+        else:
+            self.use_supabase = False
+            # Fallback a almacenamiento local
+            self.receipts_dir = os.getenv("RECEIPTS_DIR", "/data/receipts")
+            os.makedirs(self.receipts_dir, exist_ok=True)
     
     def upload_receipt(self, file_bytes: bytes, filename: str, user_id: int) -> Optional[str]:
         """
-        Upload receipt image to local storage
+        Upload receipt image to Supabase Storage or local storage
         
         Returns:
-            Relative URL of uploaded file or None if failed
+            Public URL of uploaded file or None if failed
         """
         try:
             # Generate unique filename
             extension = Path(filename).suffix
-            unique_filename = f"{user_id}_{uuid.uuid4()}{extension}"
+            unique_filename = f"{user_id}/{uuid.uuid4()}{extension}"
             
-            # Create user directory
-            user_dir = os.path.join(self.receipts_dir, str(user_id))
-            os.makedirs(user_dir, exist_ok=True)
-            
-            # Save file
-            file_path = os.path.join(user_dir, unique_filename)
-            with open(file_path, 'wb') as f:
-                f.write(file_bytes)
-            
-            # Return relative URL
-            return f"receipts/{user_id}/{unique_filename}"
+            if self.use_supabase:
+                # Upload to Supabase Storage
+                response = self.supabase.storage.from_(self.bucket_name).upload(
+                    path=unique_filename,
+                    file=file_bytes,
+                    file_options={"content-type": self._get_content_type(extension)}
+                )
+                
+                # Get public URL
+                public_url = self.supabase.storage.from_(self.bucket_name).get_public_url(unique_filename)
+                return public_url
+            else:
+                # Upload to local storage
+                user_dir = os.path.join(self.receipts_dir, str(user_id))
+                os.makedirs(user_dir, exist_ok=True)
+                
+                file_path = os.path.join(user_dir, unique_filename.split('/')[-1])
+                with open(file_path, 'wb') as f:
+                    f.write(file_bytes)
+                
+                # Return relative URL
+                return f"receipts/{user_id}/{unique_filename.split('/')[-1]}"
         
         except Exception as e:
-            print(f"Error uploading file: {e}")
+            print(f"❌ Error uploading file: {e}")
             return None
     
     def delete_receipt(self, file_url: str) -> bool:
-        """Delete receipt from local storage"""
+        """Delete receipt from Supabase Storage or local storage"""
         try:
-            # Extract filename from URL
-            if file_url.startswith('receipts/'):
+            if self.use_supabase and "supabase" in file_url:
+                # Extract path from Supabase URL
+                # URL format: https://xxx.supabase.co/storage/v1/object/public/receipts/path
+                parts = file_url.split(f"/{self.bucket_name}/")
+                if len(parts) == 2:
+                    file_path = parts[1]
+                    self.supabase.storage.from_(self.bucket_name).remove([file_path])
+                    return True
+            elif file_url.startswith('receipts/'):
+                # Delete from local storage
                 file_path = os.path.join(self.receipts_dir, file_url.replace('receipts/', ''))
                 if os.path.exists(file_path):
                     os.remove(file_path)
-                return True
+                    return True
             return False
         except Exception as e:
-            print(f"Error deleting file: {e}")
+            print(f"❌ Error deleting file: {e}")
             return False
     
     def _get_content_type(self, extension: str) -> str:
