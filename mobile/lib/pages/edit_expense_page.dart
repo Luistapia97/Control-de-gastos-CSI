@@ -44,8 +44,8 @@ class _EditExpensePageState extends State<EditExpensePage> {
 
   String _getFullImageUrl(String? url) {
     if (url == null || url.isEmpty) return '';
-    if (url.startsWith('http')) return url;
-    // Construir URL completa desde ruta relativa
+    if (url.startsWith('http')) return url; // Ya es una URL completa (Supabase o cualquier otro)
+    // Construir URL completa desde ruta relativa (almacenamiento local antiguo)
     return 'https://control-de-gastos-csi.onrender.com/$url';
   }
 
